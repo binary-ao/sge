@@ -1,0 +1,16 @@
+# SIGE Bengo — acesso em http://localhost/sg_escolar sem "/public" no endereço.
+# Encaminha todos os pedidos para a pasta public/ e bloqueia ficheiros sensíveis.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Bloquear ficheiros ocultos (.env, .git…) e pastas internas
+    RewriteRule (^|/)\. - [F,L]
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|docs)(/|$) - [F,L]
+    RewriteRule ^(composer\.(json|lock)|package\.json|phpunit\.xml|artisan|vite\.config\.js)$ - [F,L]
+
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
