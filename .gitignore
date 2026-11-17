@@ -24,3 +24,4 @@ yarn-error.log
 
 # Cópias da base de dados (dados reais, senhas cifradas, sessões)
 *.sql
+*.zip

@@ -72,6 +72,35 @@ Para repor os dados de demonstração antes de uma apresentação: `php artisan 
 5. **Optimização**: `php artisan config:cache && php artisan route:cache && php artisan view:cache`.
 6. **Cópias de segurança**: activar o agendador (ver abaixo) e guardar periodicamente cópias num suporte externo.
 
+## Publicação: local → GitHub → servidor
+
+O servidor de produção (`https://sge.binary.ao`, conta cPanel `sgebinary`) obtém o código do GitHub
+(`binary-ao/sge`, ramo `main`). Para publicar uma alteração basta:
+
+```bash
+git add -A && git commit -m "Descrição da alteração"
+git push
+```
+
+No servidor, o cron da conta executa [deploy/deploy.sh](deploy/deploy.sh) a cada 2 minutos. Quando há commits
+novos, o script coloca o site em manutenção, faz o `git merge --ff-only`, reinstala as dependências se o
+`composer.lock` mudou, faz uma cópia de segurança e aplica as migrações se houver migrações novas, refaz as
+caches e repõe o site. O registo fica em `~/logs/deploy.log`.
+
+| No servidor | Caminho |
+|---|---|
+| Código (clone do GitHub) | `/home/sgebinary/sge` |
+| Pasta pública (DocumentRoot) | `/home/sgebinary/sge/public` |
+| Configuração (fora do Git) | `/home/sgebinary/sge/.env` |
+| Versão do PHP (fora do Git) | `/home/sgebinary/.htaccess` (ea-php82) |
+| Registo das publicações | `/home/sgebinary/logs/deploy.log` |
+
+Publicação imediata ou reposição das caches, como root:
+`su -s /bin/bash sgebinary -c "bash ~/sge/deploy/deploy.sh --forcar"`.
+
+Regras: não editar ficheiros directamente no servidor (o `merge --ff-only` falharia); o `.env`, a base de dados
+e os ficheiros carregados (`storage/`) nunca passam pelo GitHub.
+
 ## Cópias de segurança
 
 ```bash
